@@ -54,7 +54,7 @@ export default function DashboardComponent() {
   });
 
   // Function to add or update patients
-  const handleAddOrUpdatePatient = (newPatient, editPatientId = null) => {
+  const handleAddOrUpdatePatient = (newPatient: any, editPatientId: number | null = null) => {
     if (editPatientId !== null) {
       setPatients((prev) =>
         prev.map((patient) =>
@@ -73,6 +73,7 @@ export default function DashboardComponent() {
       ]);
     }
   };
+  
 
   // Function to delete a patient
   const handleDeletePatient = (id) => {
@@ -271,7 +272,7 @@ function PatientRecords() {
     }));
   };
 
-  const handleAddPatient = () => {
+  const handleAddOrUpdatePatient = () => {
     if (!newPatient.name || !newPatient.age || !newPatient.gender || !newPatient.lastVisit) {
       alert('Please fill in all fields');
       return;

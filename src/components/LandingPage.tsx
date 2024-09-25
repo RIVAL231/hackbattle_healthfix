@@ -28,7 +28,7 @@ export default function LandingPage() {
         <header className="container mx-auto px-4 py-6 relative z-10">
           <nav className="flex justify-between items-center">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-              <h1 className="text-2xl font-bold text-blue-600">VirtualHospital</h1>
+              <h1 className="text-2xl font-bold text-blue-600">DigiSwasth</h1>
             </motion.div>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }}>
               <Button variant="ghost" className="mr-2">Home</Button>
@@ -304,7 +304,7 @@ export default function LandingPage() {
             <div className="container mx-auto px-4 py-12">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">VirtualHospital</h3>
+                  <h3 className="text-lg font-semibold mb-4">DigiSwasth</h3>
                   <p className="text-sm text-gray-400">Revolutionizing healthcare through technology</p>
                 </div>
                 <div>
@@ -335,7 +335,7 @@ export default function LandingPage() {
                 </div>
               </div>
               <div className="mt-8 pt-8 border-t border-gray-700 text-center">
-                <p className="text-sm text-gray-400">&copy; {new Date().getFullYear()} VirtualHospital. All rights reserved.</p>
+                <p className="text-sm text-gray-400">&copy; {new Date().getFullYear()} DigiSwasth. All rights reserved.</p>
               </div>
             </div>
           </footer>
