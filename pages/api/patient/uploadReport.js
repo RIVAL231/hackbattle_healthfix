@@ -1,5 +1,5 @@
 // pages/api/patient/uploadReport.js
-import dbConnect from '../../../lib/dbConnect';
+import dbConnect from '../../../lib/dbconnect';
 import Patient from '../../../models/Patient';
 import uploadMiddleware from '../../../utils/multerConfig';
 import { verifyToken } from '../../../utils/auth';

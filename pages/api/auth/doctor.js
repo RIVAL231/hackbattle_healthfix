@@ -1,5 +1,5 @@
 // pages/api/auth/doctor.js
-import dbConnect from '../../../lib/dbConnect';
+import dbConnect from '../../../lib/dbconnect';
 import Doctor from '../../../models/Doctor';
 import { hashPassword, generateToken, verifyPassword } from '../../../utils/auth';
 

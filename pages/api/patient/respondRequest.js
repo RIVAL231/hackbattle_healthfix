@@ -1,5 +1,5 @@
 // pages/api/patient/respondRequest.js
-import dbConnect from '../../../lib/dbConnect';
+import dbConnect from '../../../lib/dbconnect';
 import Doctor from '../../../models/Doctor';
 import { verifyToken } from '../../../utils/auth';
 import nextConnect from 'next-connect';

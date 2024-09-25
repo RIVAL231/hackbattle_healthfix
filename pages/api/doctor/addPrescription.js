@@ -1,5 +1,5 @@
 // pages/api/doctor/addPrescription.js
-import dbConnect from '../../../lib/dbConnect';
+import dbConnect from '../../../lib/dbconnect';
 import Doctor from '../../../models/Doctor';
 import Patient from '../../../models/Patient';
 import { verifyToken } from '../../../utils/auth';
