@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "export":"next export"
+    "export": "next export"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.1.1",
@@ -30,6 +30,7 @@
     "react-dom": "^18",
     "react-router-dom": "^6.26.2",
     "react-scroll-parallax": "^3.4.5",
+    "recharts": "^2.12.7",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7"
   },
