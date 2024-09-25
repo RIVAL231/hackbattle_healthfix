@@ -1,5 +1,5 @@
 // pages/api/patient/getProfile.js
-import dbConnect from '../../../lib/dbConnect';
+import dbConnect from '../../../lib/dbconnect';
 import Patient from '../../../models/Patient';
 import { verifyToken } from '../../../utils/auth';
 import nextConnect from 'next-connect';
