@@ -40,7 +40,51 @@ function Modal({ children, onClose }: { children: React.ReactNode; onClose: () =
 }
 
 export default function DashboardComponent() {
-  const [activeTab, setActiveTab] = React.useState('overview')
+  const [activeTab, setActiveTab] = useState('overview');
+  const [patients, setPatients] = useState(() => {
+    const storedPatients = localStorage.getItem('patients');
+    return storedPatients
+      ? JSON.parse(storedPatients)
+      : [
+          { id: 1, name: 'John Doe', age: 35, gender: 'Male', lastVisit: '2023-09-15' },
+          { id: 2, name: 'Jane Smith', age: 28, gender: 'Female', lastVisit: '2023-09-20' },
+          { id: 3, name: 'Bob Johnson', age: 42, gender: 'Male', lastVisit: '2023-09-18' },
+          { id: 4, name: 'Alice Brown', age: 31, gender: 'Female', lastVisit: '2023-09-22' },
+        ];
+  });
+
+  // Function to add or update patients
+  const handleAddOrUpdatePatient = (newPatient, editPatientId = null) => {
+    if (editPatientId !== null) {
+      setPatients((prev) =>
+        prev.map((patient) =>
+          patient.id === editPatientId
+            ? { ...patient, ...newPatient }
+            : patient
+        )
+      );
+    } else {
+      setPatients((prev) => [
+        ...prev,
+        {
+          ...newPatient,
+          id: prev.length + 1,
+        },
+      ]);
+    }
+  };
+
+  // Function to delete a patient
+  const handleDeletePatient = (id) => {
+    const confirmed = window.confirm('Are you sure you want to delete this patient?');
+    if (confirmed) {
+      setPatients((prev) => prev.filter((patient) => patient.id !== id));
+    }
+  };
+
+  useEffect(() => {
+    localStorage.setItem('patients', JSON.stringify(patients));
+  }, [patients]);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -49,11 +93,11 @@ export default function DashboardComponent() {
       case 'medical-store':
         return <MedicalStore />
       case 'patient-records':
-        return <PatientRecords />
+        return <PatientRecords patients={patients} onAddOrUpdate={handleAddOrUpdatePatient} onDelete={handleDeletePatient} />
       case 'prescriptions':
         return <Prescriptions />
       case 'vitals':
-        return <VitalsMonitoring />
+        return <VitalsMonitoring patients={patients} />
       default:
         return <Overview />
     }
@@ -199,7 +243,8 @@ function MedicalStore() {
 }
 
 function PatientRecords() {
-  const [patients, setPatients] = useState<Patient[]>(() => {
+  const [patients, setPatients] = useState(() => {
+    // Retrieve patients from localStorage on initial load
     const storedPatients = localStorage.getItem('patients');
     return storedPatients ? JSON.parse(storedPatients) : [
       { id: 1, name: 'John Doe', age: 35, gender: 'Male', lastVisit: '2023-09-15' },
@@ -211,6 +256,8 @@ function PatientRecords() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newPatient, setNewPatient] = useState({ name: '', age: '', gender: '', lastVisit: '' });
+  const [editPatientId, setEditPatientId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     localStorage.setItem('patients', JSON.stringify(patients));
@@ -225,17 +272,36 @@ function PatientRecords() {
   };
 
   const handleAddPatient = () => {
+    if (!newPatient.name || !newPatient.age || !newPatient.gender || !newPatient.lastVisit) {
+      alert('Please fill in all fields');
+      return;
+    }
+
     setPatients((prev) => [
       ...prev,
       {
         ...newPatient,
         id: prev.length + 1,
-        age: parseInt(newPatient.age, 10),
       },
     ]);
     setNewPatient({ name: '', age: '', gender: '', lastVisit: '' });
     setIsModalOpen(false);
+    setEditPatientId(null);
   };
+
+  const handleEditPatient = (patient) => {
+    setNewPatient(patient);
+    setEditPatientId(patient.id);
+    setIsModalOpen(true);
+  };
+
+  const clearInputFields = () => {
+    setNewPatient({ name: '', age: '', gender: '', lastVisit: '' }); // Reset to initial state
+  };
+
+  const filteredPatients = patients.filter((patient) =>
+    patient.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <Card>
@@ -245,7 +311,12 @@ function PatientRecords() {
       </CardHeader>
       <CardContent>
         <div className="flex justify-between items-center mb-4">
-          <Input className="max-w-sm" placeholder="Search patients..." />
+          <Input
+            className="max-w-sm"
+            placeholder="Search patients..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
           <Button onClick={() => setIsModalOpen(true)}>
             <Plus className="mr-2 h-4 w-4" /> Add New Patient
           </Button>
@@ -262,17 +333,17 @@ function PatientRecords() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {patients.map((patient) => (
+            {filteredPatients.map((patient) => (
               <TableRow key={patient.id}>
                 <TableCell>{patient.name}</TableCell>
                 <TableCell>{patient.age}</TableCell>
                 <TableCell>{patient.gender}</TableCell>
                 <TableCell>{patient.lastVisit}</TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={() => handleEditPatient(patient)}>
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={() => onDelete(patient.id)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </TableCell>
@@ -283,7 +354,9 @@ function PatientRecords() {
 
         {isModalOpen && (
           <Modal onClose={() => setIsModalOpen(false)}>
-            <h2 className="text-xl font-semibold mb-4">Add New Patient</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              {editPatientId ? 'Edit Patient' : 'Add New Patient'}
+            </h2>
             <div className="space-y-4">
               <Input
                 name="name"
@@ -316,8 +389,11 @@ function PatientRecords() {
               <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
                 Cancel
               </Button>
-              <Button className="ml-2" onClick={handleAddPatient}>
-                Add Patient
+              <Button variant="secondary" onClick={clearInputFields} className="ml-2">
+                Clear
+              </Button>
+              <Button className="ml-2" onClick={handleAddOrUpdatePatient}>
+                {editPatientId ? 'Save Changes' : 'Add Patient'}
               </Button>
             </div>
           </Modal>
@@ -385,12 +461,8 @@ function Prescriptions() {
   )
 }
 
-function VitalsMonitoring() {
-  const patients = [
-    { id: 1, name: 'John Doe' },
-    { id: 2, name: 'Jane Smith' },
-    { id: 3, name: 'Bob Johnson' },
-  ]
+function VitalsMonitoring({ patients }) {
+  const [selectedPatient, setSelectedPatient] = useState(null);
 
   return (
     <Card>
@@ -401,7 +473,7 @@ function VitalsMonitoring() {
       <CardContent>
         <div className="space-y-4">
           <div className="flex gap-4">
-            <Select>
+            <Select onValueChange={(value) => setSelectedPatient(value)}>
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="Select patient" />
               </SelectTrigger>
@@ -413,43 +485,48 @@ function VitalsMonitoring() {
                 ))}
               </SelectContent>
             </Select>
-            <Input type="date" className="w-[200px]" />
+            
           </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Blood Pressure</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Input type="text" placeholder="Systolic" className="mb-2" />
-                <Input type="text" placeholder="Diastolic" />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Heart Rate</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Input type="text" placeholder="BPM" />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Temperature</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Input type="text" placeholder="°C" />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Oxygen Saturation</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Input type="text" placeholder="%" />
-              </CardContent>
-            </Card>
-          </div>
+          {selectedPatient && (
+            <div>
+              <p className="text-lg">Vitals for: {patients.find(patient => patient.id.toString() === selectedPatient).name}</p>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mt-4">
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Blood Pressure</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Input type="text" placeholder="Systolic" className="mb-2" />
+                    <Input type="text" placeholder="Diastolic" />
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Heart Rate</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Input type="text" placeholder="BPM" />
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Temperature</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Input type="text" placeholder="°C" />
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Oxygen Saturation</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Input type="text" placeholder="%" />
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
           <Button className="w-full">Save Vitals</Button>
         </div>
       </CardContent>
