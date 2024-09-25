@@ -170,18 +170,20 @@ function MedicalStore() {
 
 function PatientRecords() {
   const [patients, setPatients] = useState(() => {
-    // Retrieve patients from localStorage on initial load
     const storedPatients = localStorage.getItem('patients');
-    return storedPatients ? JSON.parse(storedPatients) : [
-      { id: 1, name: 'John Doe', age: 35, gender: 'Male', lastVisit: '2023-09-15' },
-      { id: 2, name: 'Jane Smith', age: 28, gender: 'Female', lastVisit: '2023-09-20' },
-      { id: 3, name: 'Bob Johnson', age: 42, gender: 'Male', lastVisit: '2023-09-18' },
-      { id: 4, name: 'Alice Brown', age: 31, gender: 'Female', lastVisit: '2023-09-22' },
-    ];
+    return storedPatients
+      ? JSON.parse(storedPatients)
+      : [
+          { id: 1, name: 'John Doe', age: 35, gender: 'Male', lastVisit: '2023-09-15' },
+          { id: 2, name: 'Jane Smith', age: 28, gender: 'Female', lastVisit: '2023-09-20' },
+          { id: 3, name: 'Bob Johnson', age: 42, gender: 'Male', lastVisit: '2023-09-18' },
+          { id: 4, name: 'Alice Brown', age: 31, gender: 'Female', lastVisit: '2023-09-22' },
+        ];
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newPatient, setNewPatient] = useState({ name: '', age: '', gender: '', lastVisit: '' });
+  const [editPatientId, setEditPatientId] = useState(null);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -197,15 +199,42 @@ function PatientRecords() {
       return;
     }
 
-    setPatients((prev) => [
-      ...prev,
-      {
-        ...newPatient,
-        id: prev.length + 1,
-      },
-    ]);
+    if (editPatientId !== null) {
+      // Modify existing patient
+      setPatients((prev) =>
+        prev.map((patient) =>
+          patient.id === editPatientId
+            ? { ...patient, ...newPatient }
+            : patient
+        )
+      );
+    } else {
+      // Add new patient
+      setPatients((prev) => [
+        ...prev,
+        {
+          ...newPatient,
+          id: prev.length + 1,
+        },
+      ]);
+    }
+
     setNewPatient({ name: '', age: '', gender: '', lastVisit: '' });
     setIsModalOpen(false);
+    setEditPatientId(null);
+  };
+
+  const handleEditPatient = (patient) => {
+    setNewPatient(patient);
+    setEditPatientId(patient.id);
+    setIsModalOpen(true);
+  };
+
+  const handleDeletePatient = (id) => {
+    const confirmed = window.confirm('Are you sure you want to delete this patient?');
+    if (confirmed) {
+      setPatients((prev) => prev.filter((patient) => patient.id !== id));
+    }
   };
 
   return (
@@ -240,10 +269,10 @@ function PatientRecords() {
                 <TableCell>{patient.gender}</TableCell>
                 <TableCell>{patient.lastVisit}</TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={() => handleEditPatient(patient)}>
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={() => handleDeletePatient(patient.id)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </TableCell>
@@ -254,7 +283,9 @@ function PatientRecords() {
 
         {isModalOpen && (
           <Modal onClose={() => setIsModalOpen(false)}>
-            <h2 className="text-xl font-semibold mb-4">Add New Patient</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              {editPatientId ? 'Edit Patient' : 'Add New Patient'}
+            </h2>
             <div className="space-y-4">
               <Input
                 name="name"
@@ -288,7 +319,7 @@ function PatientRecords() {
                 Cancel
               </Button>
               <Button className="ml-2" onClick={handleAddPatient}>
-                Add Patient
+                {editPatientId ? 'Save Changes' : 'Add Patient'}
               </Button>
             </div>
           </Modal>
