@@ -7,7 +7,37 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import Modal from './modal'
+
+interface Patient {
+  id: number;
+  name: string;
+  age: number;
+  gender: string;
+  lastVisit: string;
+}
+
+interface Prescription {
+  id: number;
+  patient: string;
+  medication: string;
+  dosage: string;
+  frequency: string;
+  startDate: string;
+  endDate: string;
+}
+
+function Modal({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-lg max-w-md w-full">
+        {children}
+        <button onClick={onClose} className="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+          &times;
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function DashboardComponent() {
   const [activeTab, setActiveTab] = React.useState('overview')
@@ -169,8 +199,7 @@ function MedicalStore() {
 }
 
 function PatientRecords() {
-  const [patients, setPatients] = useState(() => {
-    // Retrieve patients from localStorage on initial load
+  const [patients, setPatients] = useState<Patient[]>(() => {
     const storedPatients = localStorage.getItem('patients');
     return storedPatients ? JSON.parse(storedPatients) : [
       { id: 1, name: 'John Doe', age: 35, gender: 'Male', lastVisit: '2023-09-15' },
@@ -183,7 +212,11 @@ function PatientRecords() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newPatient, setNewPatient] = useState({ name: '', age: '', gender: '', lastVisit: '' });
 
-  const handleInputChange = (e) => {
+  useEffect(() => {
+    localStorage.setItem('patients', JSON.stringify(patients));
+  }, [patients]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setNewPatient((prev) => ({
       ...prev,
@@ -192,16 +225,12 @@ function PatientRecords() {
   };
 
   const handleAddPatient = () => {
-    if (!newPatient.name || !newPatient.age || !newPatient.gender || !newPatient.lastVisit) {
-      alert('Please fill in all fields');
-      return;
-    }
-
     setPatients((prev) => [
       ...prev,
       {
         ...newPatient,
         id: prev.length + 1,
+        age: parseInt(newPatient.age, 10),
       },
     ]);
     setNewPatient({ name: '', age: '', gender: '', lastVisit: '' });
@@ -298,13 +327,12 @@ function PatientRecords() {
   );
 }
 
-
 function Prescriptions() {
-  const prescriptions = [
+  const [prescriptions, setPrescriptions] = useState<Prescription[]>([
     { id: 1, patient: 'John Doe', medication: 'Amoxicillin', dosage: '500mg', frequency: 'Every 8 hours', startDate: '2023-09-15', endDate: '2023-09-22' },
     { id: 2, patient: 'Jane Smith', medication: 'Lisinopril', dosage: '10mg', frequency: 'Once daily', startDate: '2023-09-20', endDate: '2023-10-20' },
     { id: 3, patient: 'Bob Johnson', medication: 'Metformin', dosage: '1000mg', frequency: 'Twice daily', startDate: '2023-09-18', endDate: '2023-12-18' },
-  ]
+  ]);
 
   return (
     <Card>

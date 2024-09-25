@@ -1,9 +1,11 @@
-import DashboardComponent from '../components/dashboard'
+// src/app/page.tsx (this is your home page)
+import LandingPage from '@/components/LandingPage';
+import Link from 'next/link';
 
 export default function Home() {
   return (
     <main>
-      <DashboardComponent />
+      <LandingPage/>
     </main>
-  )
+  );
 }
