@@ -1,12 +1,13 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react';
 import { BarChart, Users, Pill, FileText, Activity, ShoppingCart, Menu, Search, Plus, Edit, Trash2 } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import Modal from './modal'
 
 export default function DashboardComponent() {
   const [activeTab, setActiveTab] = React.useState('overview')
@@ -168,12 +169,44 @@ function MedicalStore() {
 }
 
 function PatientRecords() {
-  const patients = [
-    { id: 1, name: 'John Doe', age: 35, gender: 'Male', lastVisit: '2023-09-15' },
-    { id: 2, name: 'Jane Smith', age: 28, gender: 'Female', lastVisit: '2023-09-20' },
-    { id: 3, name: 'Bob Johnson', age: 42, gender: 'Male', lastVisit: '2023-09-18' },
-    { id: 4, name: 'Alice Brown', age: 31, gender: 'Female', lastVisit: '2023-09-22' },
-  ]
+  const [patients, setPatients] = useState(() => {
+    // Retrieve patients from localStorage on initial load
+    const storedPatients = localStorage.getItem('patients');
+    return storedPatients ? JSON.parse(storedPatients) : [
+      { id: 1, name: 'John Doe', age: 35, gender: 'Male', lastVisit: '2023-09-15' },
+      { id: 2, name: 'Jane Smith', age: 28, gender: 'Female', lastVisit: '2023-09-20' },
+      { id: 3, name: 'Bob Johnson', age: 42, gender: 'Male', lastVisit: '2023-09-18' },
+      { id: 4, name: 'Alice Brown', age: 31, gender: 'Female', lastVisit: '2023-09-22' },
+    ];
+  });
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newPatient, setNewPatient] = useState({ name: '', age: '', gender: '', lastVisit: '' });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewPatient((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleAddPatient = () => {
+    if (!newPatient.name || !newPatient.age || !newPatient.gender || !newPatient.lastVisit) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    setPatients((prev) => [
+      ...prev,
+      {
+        ...newPatient,
+        id: prev.length + 1,
+      },
+    ]);
+    setNewPatient({ name: '', age: '', gender: '', lastVisit: '' });
+    setIsModalOpen(false);
+  };
 
   return (
     <Card>
@@ -184,10 +217,11 @@ function PatientRecords() {
       <CardContent>
         <div className="flex justify-between items-center mb-4">
           <Input className="max-w-sm" placeholder="Search patients..." />
-          <Button>
+          <Button onClick={() => setIsModalOpen(true)}>
             <Plus className="mr-2 h-4 w-4" /> Add New Patient
           </Button>
         </div>
+
         <Table>
           <TableHeader>
             <TableRow>
@@ -217,10 +251,53 @@ function PatientRecords() {
             ))}
           </TableBody>
         </Table>
+
+        {isModalOpen && (
+          <Modal onClose={() => setIsModalOpen(false)}>
+            <h2 className="text-xl font-semibold mb-4">Add New Patient</h2>
+            <div className="space-y-4">
+              <Input
+                name="name"
+                value={newPatient.name}
+                onChange={handleInputChange}
+                placeholder="Patient Name"
+              />
+              <Input
+                name="age"
+                type="number"
+                value={newPatient.age}
+                onChange={handleInputChange}
+                placeholder="Patient Age"
+              />
+              <Input
+                name="gender"
+                value={newPatient.gender}
+                onChange={handleInputChange}
+                placeholder="Patient Gender"
+              />
+              <Input
+                name="lastVisit"
+                type="date"
+                value={newPatient.lastVisit}
+                onChange={handleInputChange}
+                placeholder="Last Visit"
+              />
+            </div>
+            <div className="flex justify-end mt-4">
+              <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button className="ml-2" onClick={handleAddPatient}>
+                Add Patient
+              </Button>
+            </div>
+          </Modal>
+        )}
       </CardContent>
     </Card>
-  )
+  );
 }
+
 
 function Prescriptions() {
   const prescriptions = [
