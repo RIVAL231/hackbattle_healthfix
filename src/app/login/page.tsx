@@ -26,7 +26,14 @@ export default function Login() {
     // Do something with the userData, like sending it to an API
     console.log(userData);
   };
+  let route = '';
+if(role === 'patient'){
+  route = '/patientdashboard';
 
+}
+else{
+  route = '/doctordashboard';
+}
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <Card className="w-full max-w-md">
@@ -52,7 +59,7 @@ export default function Login() {
                 </SelectContent>
               </Select>
             </div>
-            <Link href='/dashboard'>
+            <Link href={`${route}`}>
               <Button type="submit" className="w-full">Login</Button>
             </Link>
           </form>
