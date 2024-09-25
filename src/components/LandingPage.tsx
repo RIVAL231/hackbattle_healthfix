@@ -8,11 +8,14 @@ import { ChevronRight, Heart, Shield, Users, Clock, Star, Phone, Video, Calendar
 import { ParallaxProvider, Parallax } from "react-scroll-parallax"
 
 export default function LandingPage() {
-  const fadeIn = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6 }
-  }
+    const fadeIn = {
+        initial: { opacity: 0, y: 20 },
+        animate: { 
+          opacity: 1, 
+          y: 0,
+          transition: { duration: 0.6 }  // Move transition inside animate
+        }
+      }
 
   const stagger = {
     animate: {
