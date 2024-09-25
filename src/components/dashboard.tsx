@@ -117,7 +117,9 @@ export default function DashboardComponent() {
     }
     return [];
   });
-
+  
+  const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
+  
   const handleAddOrUpdatePatient = (
     newPatient: any,
     editPatientId: number | null = null
@@ -167,7 +169,13 @@ export default function DashboardComponent() {
           />
         );
       case 'prescriptions':
-        return <Prescriptions />;
+        return (
+          <Prescriptions
+            prescriptions={prescriptions}
+            setPrescriptions={setPrescriptions}
+            patients={patients}
+          />
+        );
       case 'vitals':
         return <VitalsMonitoring patients={patients} />;
       default:
@@ -435,16 +443,158 @@ const handleClose = () => {
   );
 }
 
-function Prescriptions() {
+function Prescriptions({
+  prescriptions,
+  setPrescriptions,
+  patients,
+}: {
+  prescriptions: Prescription[];
+  setPrescriptions: React.Dispatch<React.SetStateAction<Prescription[]>>;
+  patients: Patient[];
+}) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newPrescription, setNewPrescription] = useState<Prescription>({
+    id: 0,
+    patient: '',
+    medication: '',
+    dosage: '',
+    frequency: '',
+    startDate: '',
+    endDate: ''
+  });
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleSubmit = () => {
+    setPrescriptions([...prescriptions, { ...newPrescription, id: prescriptions.length + 1 }]);
+    setIsModalOpen(false);
+    setNewPrescription({
+      id: 0,
+      patient: '',
+      medication: '',
+      dosage: '',
+      frequency: '',
+      startDate: '',
+      endDate: ''
+    });
+  };
+
+  const handleDeletePrescription = (id: number) => {
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this prescription?'
+    );
+    if (confirmed) {
+      setPrescriptions((prev) => prev.filter((prescription) => prescription.id !== id));
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Prescriptions</CardTitle>
-        <CardDescription>Manage patient prescriptions</CardDescription>
+        <Button onClick={handleOpenModal} className="mt-4">
+          <Plus className="mr-2 h-4 w-4" />
+          Add Prescription
+        </Button>
       </CardHeader>
       <CardContent>
-        <p>This is where you can manage prescriptions.</p>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Patient</TableHead>
+              <TableHead>Medication</TableHead>
+              <TableHead>Dosage</TableHead>
+              <TableHead>Frequency</TableHead>
+              <TableHead>Start Date</TableHead>
+              <TableHead>End Date</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {prescriptions.map((prescription) => (
+              <TableRow key={prescription.id}>
+                <TableCell>{prescription.patient}</TableCell>
+                <TableCell>{prescription.medication}</TableCell>
+                <TableCell>{prescription.dosage}</TableCell>
+                <TableCell>{prescription.frequency}</TableCell>
+                <TableCell>{prescription.startDate}</TableCell>
+                <TableCell>{prescription.endDate}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="ghost"
+                    onClick={() => handleDeletePrescription(prescription.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </CardContent>
+
+      {isModalOpen && (
+        <Modal onClose={() => setIsModalOpen(false)}>
+          <h2 className="text-lg font-bold mb-4">Add Prescription</h2>
+          <div className="space-y-4">
+            <Select
+              value={newPrescription.patient}
+              onValueChange={(value) =>
+                setNewPrescription({ ...newPrescription, patient: value })
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Patient" />
+              </SelectTrigger>
+              <SelectContent>
+                {patients.map((patient) => (
+                  <SelectItem key={patient.id} value={patient.name}>
+                    {patient.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input
+              value={newPrescription.medication}
+              onChange={(e) =>
+                setNewPrescription({ ...newPrescription, medication: e.target.value })
+              }
+              placeholder="Medication"
+            />
+            <Input
+              value={newPrescription.dosage}
+              onChange={(e) =>
+                setNewPrescription({ ...newPrescription, dosage: e.target.value })
+              }
+              placeholder="Dosage"
+            />
+            <Input
+              value={newPrescription.frequency}
+              onChange={(e) =>
+                setNewPrescription({ ...newPrescription, frequency: e.target.value })
+              }
+              placeholder="Frequency"
+            />
+            <Input
+              type="date"
+              value={newPrescription.startDate}
+              onChange={(e) =>
+                setNewPrescription({ ...newPrescription, startDate: e.target.value })
+              }
+            />
+            <Input
+              type="date"
+              value={newPrescription.endDate}
+              onChange={(e) =>
+                setNewPrescription({ ...newPrescription, endDate: e.target.value })
+              }
+            />
+            <Button onClick={handleSubmit} className="w-full">Add Prescription</Button>
+          </div>
+        </Modal>
+      )}
     </Card>
   );
 }
@@ -462,3 +612,4 @@ function VitalsMonitoring({ patients }: { patients: Patient[] }) {
     </Card>
   );
 }
+
