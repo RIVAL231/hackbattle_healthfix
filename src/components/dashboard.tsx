@@ -184,6 +184,7 @@ function PatientRecords() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newPatient, setNewPatient] = useState({ name: '', age: '', gender: '', lastVisit: '' });
   const [editPatientId, setEditPatientId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -200,7 +201,6 @@ function PatientRecords() {
     }
 
     if (editPatientId !== null) {
-      // Modify existing patient
       setPatients((prev) =>
         prev.map((patient) =>
           patient.id === editPatientId
@@ -209,7 +209,6 @@ function PatientRecords() {
         )
       );
     } else {
-      // Add new patient
       setPatients((prev) => [
         ...prev,
         {
@@ -219,7 +218,7 @@ function PatientRecords() {
       ]);
     }
 
-    setNewPatient({ name: '', age: '', gender: '', lastVisit: '' });
+    clearInputFields(); // Clear input fields after adding
     setIsModalOpen(false);
     setEditPatientId(null);
   };
@@ -237,6 +236,14 @@ function PatientRecords() {
     }
   };
 
+  const clearInputFields = () => {
+    setNewPatient({ name: '', age: '', gender: '', lastVisit: '' }); // Reset to initial state
+  };
+
+  const filteredPatients = patients.filter((patient) =>
+    patient.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <Card>
       <CardHeader>
@@ -245,7 +252,12 @@ function PatientRecords() {
       </CardHeader>
       <CardContent>
         <div className="flex justify-between items-center mb-4">
-          <Input className="max-w-sm" placeholder="Search patients..." />
+          <Input
+            className="max-w-sm"
+            placeholder="Search patients..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
           <Button onClick={() => setIsModalOpen(true)}>
             <Plus className="mr-2 h-4 w-4" /> Add New Patient
           </Button>
@@ -262,7 +274,7 @@ function PatientRecords() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {patients.map((patient) => (
+            {filteredPatients.map((patient) => (
               <TableRow key={patient.id}>
                 <TableCell>{patient.name}</TableCell>
                 <TableCell>{patient.age}</TableCell>
@@ -318,6 +330,9 @@ function PatientRecords() {
               <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
                 Cancel
               </Button>
+              <Button variant="secondary" onClick={clearInputFields} className="ml-2">
+                Clear
+              </Button>
               <Button className="ml-2" onClick={handleAddPatient}>
                 {editPatientId ? 'Save Changes' : 'Add Patient'}
               </Button>
@@ -328,6 +343,8 @@ function PatientRecords() {
     </Card>
   );
 }
+
+
 
 
 function Prescriptions() {
