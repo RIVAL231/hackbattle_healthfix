@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Link from 'next/link';
 
-export default function Login({ onLogin }) {
+export default function Login() {
 
   const [role, setRole] = React.useState('')
 
@@ -24,7 +24,7 @@ export default function Login({ onLogin }) {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Login to Virtual Hospital</CardTitle>
+          <CardTitle>Login to DigiSwasth</CardTitle>
           <CardDescription>Enter your details to access the dashboard</CardDescription>
         </CardHeader>
         <CardContent>

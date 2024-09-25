@@ -41,16 +41,19 @@ function Modal({ children, onClose }: { children: React.ReactNode; onClose: () =
 
 export default function DashboardComponent() {
   const [activeTab, setActiveTab] = useState('overview');
-  const [patients, setPatients] = useState(() => {
-    const storedPatients = localStorage.getItem('patients');
-    return storedPatients
-      ? JSON.parse(storedPatients)
-      : [
-          { id: 1, name: 'John Doe', age: 35, gender: 'Male', lastVisit: '2023-09-15' },
-          { id: 2, name: 'Jane Smith', age: 28, gender: 'Female', lastVisit: '2023-09-20' },
-          { id: 3, name: 'Bob Johnson', age: 42, gender: 'Male', lastVisit: '2023-09-18' },
-          { id: 4, name: 'Alice Brown', age: 31, gender: 'Female', lastVisit: '2023-09-22' },
-        ];
+  const [patients, setPatients] = useState<Patient[]>(() => {
+    if (typeof window !== 'undefined') {
+      const storedPatients = localStorage.getItem('patients');
+      return storedPatients
+        ? JSON.parse(storedPatients)
+        : [
+            { id: 1, name: 'John Doe', age: 35, gender: 'Male', lastVisit: '2023-09-15' },
+            { id: 2, name: 'Jane Smith', age: 28, gender: 'Female', lastVisit: '2023-09-20' },
+            { id: 3, name: 'Bob Johnson', age: 42, gender: 'Male', lastVisit: '2023-09-18' },
+            { id: 4, name: 'Alice Brown', age: 31, gender: 'Female', lastVisit: '2023-09-22' },
+          ];
+    }
+    return [];
   });
 
   // Function to add or update patients
@@ -109,7 +112,7 @@ export default function DashboardComponent() {
       {/* Sidebar */}
       <aside className="w-64 bg-white shadow-md">
         <div className="p-4">
-          <h1 className="text-2xl font-bold text-blue-600">HealthMed</h1>
+          <h1 className="text-2xl font-bold text-blue-600">DigiSwasth</h1>
         </div>
         <nav className="mt-6">
           {[
@@ -244,15 +247,19 @@ function MedicalStore() {
 }
 
 function PatientRecords() {
-  const [patients, setPatients] = useState(() => {
-    // Retrieve patients from localStorage on initial load
-    const storedPatients = localStorage.getItem('patients');
-    return storedPatients ? JSON.parse(storedPatients) : [
-      { id: 1, name: 'John Doe', age: 35, gender: 'Male', lastVisit: '2023-09-15' },
-      { id: 2, name: 'Jane Smith', age: 28, gender: 'Female', lastVisit: '2023-09-20' },
-      { id: 3, name: 'Bob Johnson', age: 42, gender: 'Male', lastVisit: '2023-09-18' },
-      { id: 4, name: 'Alice Brown', age: 31, gender: 'Female', lastVisit: '2023-09-22' },
-    ];
+  const [patients, setPatients] = useState<Patient[]>(() => {
+    if (typeof window !== 'undefined') {
+      const storedPatients = localStorage.getItem('patients');
+      return storedPatients
+        ? JSON.parse(storedPatients)
+        : [
+            { id: 1, name: 'John Doe', age: 35, gender: 'Male', lastVisit: '2023-09-15' },
+            { id: 2, name: 'Jane Smith', age: 28, gender: 'Female', lastVisit: '2023-09-20' },
+            { id: 3, name: 'Bob Johnson', age: 42, gender: 'Male', lastVisit: '2023-09-18' },
+            { id: 4, name: 'Alice Brown', age: 31, gender: 'Female', lastVisit: '2023-09-22' },
+          ];
+    }
+    return [];
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -303,6 +310,14 @@ function PatientRecords() {
   const filteredPatients = patients.filter((patient) =>
     patient.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  function onDelete(id: any): void {
+    
+     
+      setPatients((prev) => prev.filter((patient) => patient.id !== id));
+    
+
+  }
 
   return (
     <Card>
