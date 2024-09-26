@@ -1,0 +1,58 @@
+[
+    {
+        "name": "Dr. Renu George",
+        "specialization": "Dermatology",
+        "experience": "MD, DVL",
+        "latitude": 12.9251,
+        "longitude": 79.1356,
+            "phone": "0416-228-3527",
+            "email": "derm1@cmcvellore.ac.in",
+        "location": "CMC Vellore, Tamil Nadu",
+        "link": "https://www.cmcvelloreguide.com"
+    },
+    {
+        "name": "Dr. A. S. Prabhu",
+        "specialization": "Neurology",
+        "experience": "MD, DM",
+        "latitude": 12.9258,
+        "longitude": 79.1358,
+            "phone": "+91-416-2206300",
+            "email": "info@snhrc.org",
+        "location": "Sri Narayani Hospital, Vellore",
+        "link": "https://www.snhrc.org"
+    },
+    {
+        "name": "Dr. Usha Humbi",
+        "specialization": "Neurology - Epilepsy Specialist",
+        "experience": "MD (Int Med), DM(Neuro), PDF EPILEPSY (NIMHANS)",
+        "latitude": 12.9258,
+        "longitude": 79.1358,
+            "phone": "+91-416-2206300",
+            "email": "info@snhrc.org",
+        "location": "Sri Narayani Hospital, Vellore",
+        "link": "https://www.snhrc.org"
+    },
+    {
+        "name": "Dr. Amit Kumar Dutta",
+        "specialization": "Gastroenterology",
+        "experience": "MD, DM (Gastro)",
+        "latitude": 12.9251,
+        "longitude": 79.1356,
+            "phone": "0416-228-3483",
+            "email": "gastro@cmcvellore.ac.in",
+        "location": "CMC Vellore, Tamil Nadu",
+        "link": "https://www.cmcvelloreguide.com"
+    },
+    {
+        "name": "Dr. Lydia Mathew",
+        "specialization": "Pediatric Dermatology",
+        "experience": "MD, DVL",
+        "latitude": 12.9251,
+        "longitude": 79.1356,
+            "phone": "0416-228-3527",
+            "email": "derm1@cmcvellore.ac.in",
+        "location": "CMC Vellore, Tamil Nadu",
+        "link": "https://www.cmcvelloreguide.com"
+    }
+  ]
+  

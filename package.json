@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "export":"next export"
+    "export": "next export"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.1.1",
@@ -20,6 +20,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.6.0",
+    "fs": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.446.0",
     "mongoose": "^8.6.3",
