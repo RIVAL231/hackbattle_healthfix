@@ -1,4 +1,3 @@
-// utils/auth.js
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
@@ -19,4 +18,8 @@ export const generateToken = (user) => {
 
 export const verifyToken = (token) => {
   return jwt.verify(token, JWT_SECRET);
+};
+
+export const getAuthToken = () => {
+  return localStorage.getItem('authToken');
 };

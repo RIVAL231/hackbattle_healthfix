@@ -39,7 +39,7 @@ export default function LandingPage() {
               <Button variant="ghost" className="mr-2">About</Button>
               <Button variant="ghost" className="mr-4">Contact</Button>
              <Link href='/login'> <Button variant="outline" className="mr-2">Login</Button></Link>
-              <Button>Sign Up</Button>
+            <Link href='/signup'><Button variant="outline" className="mr-2">Sign Up</Button></Link>
             </motion.div>
           </nav>
         </header>

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getAuthToken } from '../auth'; 
 
 interface Prescription {
   id: string;
@@ -21,6 +22,7 @@ export default function Prescriptions() {
     dosage: '',
     date: ''
   });
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     // Fetch the prescriptions from the API
@@ -41,21 +43,37 @@ export default function Prescriptions() {
   // Handle form submission to create a new prescription
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setMessage('');
+
+    // Get the auth token
+    const token = getAuthToken();
+    if (!token) {
+      setMessage('Unauthorized: Please log in to continue.');
+      return;
+    }
+
     try {
-      const response = await fetch('/api/prescriptions', {
+      const response = await fetch('/api/doctor/addPrescription', { // Use the correct endpoint
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Add the auth token
         },
         body: JSON.stringify(newPrescription),
       });
 
       const data = await response.json();
-      setPrescriptions([...prescriptions, data]);
-      // Reset the form
-      setNewPrescription({ patientName: '', medication: '', dosage: '', date: '' });
+
+      if (response.ok) {
+        setPrescriptions([...prescriptions, data]);
+        setNewPrescription({ patientName: '', medication: '', dosage: '', date: '' });
+        setMessage('Prescription added successfully.');
+      } else {
+        setMessage(`Error: ${data.error}`);
+      }
     } catch (error) {
       console.error('Error creating prescription:', error);
+      setMessage('Server error, please try again later.');
     }
   };
 
@@ -117,6 +135,7 @@ export default function Prescriptions() {
             </div>
             <Button type="submit" className="w-full">Add Prescription</Button>
           </form>
+          {message && <p className="text-red-500 mt-4">{message}</p>}
           <hr className="my-4" />
           {prescriptions.length > 0 ? (
             <ul className="space-y-4">
