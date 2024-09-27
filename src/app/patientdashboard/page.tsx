@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,6 +10,17 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { getAuthToken } from '../auth';
+
+const [token, setToken] = useState<string | null>(null); // Initialize token state
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token'); // Access localStorage in useEffect
+    if (storedToken) {
+      setToken(storedToken);
+    } else {
+      console.error('No token found. Please log in again.');
+    }
+  }, []);
 
 
 const symptomsDict = {
@@ -119,7 +130,7 @@ const [formData, setFormData] = useState<FormData>({
     previousDiagnosis: null
   }
 })
-const token = localStorage.getItem('token');
+
 const handleProfileSubmit = async (e: React.FormEvent) => {
 
   e.preventDefault();
