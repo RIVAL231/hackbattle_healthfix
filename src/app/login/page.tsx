@@ -1,39 +1,60 @@
-'use client'
+'use client';
 import React, { FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Link from 'next/link';
 
 export default function Login() {
-
+  const router = useRouter();
   const [role, setRole] = React.useState('');
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     const form = e.target as HTMLFormElement;
-    const nameInput = form.elements.namedItem('name') as HTMLInputElement;
+    const emailInput = form.elements.namedItem('email') as HTMLInputElement;
+    const passwordInput = form.elements.namedItem('password') as HTMLInputElement;
 
     const userData = {
-      id: Math.random().toString(36).substr(2, 9),
-      name: nameInput.value,
+      type: 'login',
+      email: emailInput.value,
+      password: passwordInput.value,
       role: role
     };
 
-    // Do something with the userData, like sending it to an API
-    console.log(userData);
-  };
-  let route = '';
-if(role === 'patient'){
-  route = '/patientdashboard';
+    try {
+      const response = await fetch(`/api/auth/${role}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
 
-}
-else{
-  route = '/doctordashboard';
-}
+      const data = await response.json();
+
+      if (response.ok && data.token) {
+        // If token is received, store it in localStorage or cookies
+        localStorage.setItem('token', data.token);
+
+        // Redirect based on role
+        if (role === 'patient') {
+          router.push('/patientdashboard');
+        } else if (role === 'doctor') {
+          router.push('/doctordashboard');
+        }
+      } else {
+        console.error('Login failed:', data);
+        // Handle failed login (e.g., show error message)
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <Card className="w-full max-w-md">
@@ -44,12 +65,16 @@ else{
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" name="name" required />
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" name="email" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" name="password" type="password" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
-              <Select onValueChange={setRole} required>
+              <Select onValueChange={setRole} value={role} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select your role" />
                 </SelectTrigger>
@@ -59,9 +84,7 @@ else{
                 </SelectContent>
               </Select>
             </div>
-            <Link href={`${route}`}>
-              <Button type="submit" className="w-full">Login</Button>
-            </Link>
+            <Button type="submit" className="w-full">Login</Button>
           </form>
         </CardContent>
       </Card>

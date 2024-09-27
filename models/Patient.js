@@ -53,10 +53,10 @@ const RequestSchema = new mongoose.Schema({
 
 const MedicalRecordSchema = new mongoose.Schema({
   bloodType: String,
-  allergies: [String],
-  currentMedications: [String],
-  previousTreatments: [String],
-  diagnosisReports: [String], // URLs of uploaded reports
+  allergies: String,
+  currentMedications: String,
+  previousTreatments: String,
+  diagnosisReports: String, // URLs of uploaded reports
 });
 
 const VitalsSchema = new mongoose.Schema({

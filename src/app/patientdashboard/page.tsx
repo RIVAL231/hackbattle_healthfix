@@ -98,11 +98,46 @@ export default function PatientDashboard() {
   const [userLocation, setUserLocation] = useState<{ latitude: number | null, longitude: number | null }>({ latitude: null, longitude: null })
   const [showDoctors, setShowDoctors] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+interface MedicalRecords {
+  bloodType: string;
+  allergies: string;
+  currentMedications: string;
+  previousTreatments: string;
+  previousDiagnosis: File | null;
+}
 
-  const handleProfileSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setProfileCreated(true)
+interface FormData {
+  medicalRecords: MedicalRecords;
+}
+
+const [formData, setFormData] = useState<FormData>({
+  medicalRecords: {
+    bloodType: '',
+    allergies: '',
+    currentMedications: '',
+    previousTreatments: '',
+    previousDiagnosis: null
   }
+})
+const token = localStorage.getItem('token');
+const handleProfileSubmit = async (e: React.FormEvent) => {
+
+  e.preventDefault();
+  setProfileCreated(true);
+  try {
+    const response = await fetch('api/patient/profile', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(formData),
+  });
+}catch (error) {
+  console.error('Error:', error);
+  setProfileCreated(false);
+}
+}
 
   const handleSymptomSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -194,6 +229,7 @@ export default function PatientDashboard() {
     return R * c // Distance in km
   }
 
+  
   const renderProfileCreation = () => (
     <Card>
       <CardHeader>
@@ -201,16 +237,12 @@ export default function PatientDashboard() {
         <CardDescription>Please enter your medical history and current health information.</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleProfileSubmit}>
+      <form onSubmit={handleProfileSubmit}>
           {currentStep === 1 && (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="familyHistory">Family History</Label>
-                <Textarea id="familyHistory" placeholder="Enter family history of diseases..." />
-              </div>
-              <div>
                 <Label htmlFor="bloodType">Blood Type</Label>
-                <Select>
+                <Select onValueChange={(value) => setFormData(prev => ({ ...prev, medicalRecords: { ...prev.medicalRecords, bloodType: value } }))}>
                   <SelectTrigger id="bloodType">
                     <SelectValue placeholder="Select blood type" />
                   </SelectTrigger>
@@ -226,26 +258,26 @@ export default function PatientDashboard() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={() => setCurrentStep(2)}>Next</Button>
+              <Button type="button" onClick={() => setCurrentStep(2)}>Next</Button>
             </div>
           )}
           {currentStep === 2 && (
             <div className="space-y-4">
               <div>
                 <Label htmlFor="allergies">Allergies</Label>
-                <Input id="allergies" placeholder="Enter any allergies..." />
+                <Input id="allergies" placeholder="Enter any allergies..." onChange={(e) => setFormData(prev => ({ ...prev, medicalRecords: { ...prev.medicalRecords, allergies: e.target.value } }))} />
               </div>
               <div>
                 <Label htmlFor="currentMedications">Current Medications</Label>
-                <Textarea id="currentMedications" placeholder="Enter current medications..." />
+                <Textarea id="currentMedications" placeholder="Enter current medications..." onChange={(e) => setFormData(prev => ({ ...prev, medicalRecords: { ...prev.medicalRecords, currentMedications: e.target.value } }))} />
               </div>
               <div>
                 <Label htmlFor="previousTreatments">Previous Treatments</Label>
-                <Textarea id="previousTreatments" placeholder="Enter previous treatments..." />
+                <Textarea id="previousTreatments" placeholder="Enter previous treatments..." onChange={(e) => setFormData(prev => ({ ...prev, medicalRecords: { ...prev.medicalRecords, previousTreatments: e.target.value } }))} />
               </div>
               <div>
                 <Label htmlFor="previousDiagnosis">Upload Previous Diagnosis</Label>
-                <Input id="previousDiagnosis" type="file" />
+                <Input id="previousDiagnosis" type="file" onChange={(e) => setFormData(prev => ({ ...prev, medicalRecords: { ...prev.medicalRecords, previousDiagnosis: e.target.files?.[0] || null } }))} />
               </div>
               <Button type="submit">Create Profile</Button>
             </div>
@@ -253,7 +285,7 @@ export default function PatientDashboard() {
         </form>
       </CardContent>
     </Card>
-  )
+  );
 
   const renderSymptomChecker = () => (
     <Card>
