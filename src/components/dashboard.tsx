@@ -79,6 +79,7 @@ function Modal({
 
 export default function DashboardComponent() {
   const [activeTab, setActiveTab] = useState('overview');
+  
   const [patients, setPatients] = useState<Patient[]>(() => {
     if (typeof window !== 'undefined') {
       const storedPatients = localStorage.getItem('patients');

@@ -41,7 +41,7 @@ export default function Login() {
         localStorage.setItem('token', data.token);
 
         // Redirect based on role
-        if (role === 'patient') {
+        if (role === 'patient' ) {
           router.push('/patientdashboard');
         } else if (role === 'doctor') {
           router.push('/doctordashboard');

@@ -9,83 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { getAuthToken } from '../auth';
-
-const [token, setToken] = useState<string | null>(null); // Initialize token state
-
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token'); // Access localStorage in useEffect
-    if (storedToken) {
-      setToken(storedToken);
-    } else {
-      console.error('No token found. Please log in again.');
-    }
-  }, []);
-
-
-const symptomsDict = {
-  "Skin and Dermatological Issues": [
-    "Itching", "Skin Rash", "Nodal Skin Eruptions", "Pus Filled Pimples",
-    "Blackheads", "Scarring", "Skin Peeling", "Silver Like Dusting",
-    "Small Dents In Nails", "Inflammatory Nails", "Blister",
-    "Red Sore Around Nose", "Yellow Crust Ooze", "Dischromic Patches"
-  ],
-  "Respiratory Issues": [
-    "Continuous Sneezing", "Cough", "Breathlessness", "Phlegm",
-    "Throat Irritation", "Redness Of Eyes", "Sinus Pressure",
-    "Runny Nose", "Congestion", "Mucoid Sputum", "Rusty Sputum",
-    "Blood In Sputum"
-  ],
-  "Gastrointestinal Issues": [
-    "Stomach Pain", "Acidity", "Ulcers On Tongue", "Vomiting",
-    "Burning Micturition", "Spotting urination", "Diarrhoea",
-    "Constipation", "Abdominal Pain", "Dehydration", "Indigestion",
-    "Nausea", "Loss Of Appetite", "Pain During Bowel Movements",
-    "Pain In Anal Region", "Bloody Stool", "Irritation In Anus",
-    "Passage Of Gases", "Internal Itching", "Belly Pain",
-    "Stomach Bleeding", "Distention Of Abdomen"
-  ],
-  "Neurological and Psychological Issues": [
-    "Anxiety", "Mood Swings", "Restlessness", "Lethargy",
-    "Headache", "Altered Sensorium", "Lack Of Concentration",
-    "Visual Disturbances", "Depression", "Irritability",
-    "Slurred Speech", "Coma", "Loss Of Balance", "Unsteadiness",
-    "Spinning Movements", "Weakness Of One Body Side",
-    "Loss Of Smell", "Dizziness"
-  ],
-  "Musculoskeletal Issues": [
-    "Joint Pain", "Muscle Wasting", "Back Pain", "Neck Pain",
-    "Knee Pain", "Hip Joint Pain", "Muscle Weakness", "Stiff Neck",
-    "Swelling Joints", "Movement Stiffness", "Cramps",
-    "Painful Walking", "Weakness In Limbs", "Muscle Pain"
-  ],
-  "General Health Issues": [
-    "Shivering", "Chills", "Fatigue", "Weight Gain",
-    "Weight Loss", "High Fever", "Sweating", "Malaise",
-    "Weakness In Limbs", "Fast Heart Rate", "Cold Hands And Feets",
-    "Sunken Eyes", "Patches In Throat", "Irregular Sugar Level",
-    "Fluid Overload", "Swelling Of Stomach", "Swelled Lymph Nodes",
-    "Blurred And Distorted Vision", "Puffy Face And Eyes",
-    "Enlarged Thyroid", "Brittle Nails", "Swollen Extremities",
-    "Excessive Hunger", "Polyuria", "Increased Appetite",
-    "Obesity", "Family History", "Bruising", "Palpitations", "Enlarged Thyroid"
-  ],
-  "Liver and Renal Issues": [
-    "Yellowish Skin", "Dark Urine", "Yellow Urine",
-    "Yellowing Of Eyes", "Acute Liver Failure", "Fluid Overload.1",
-    "Swelling Of Stomach", "Mild Fever", "Prominent Veins On Calf"
-  ],
-  "Reproductive and Urinary Issues": [
-    "Burning Micturition", "Spotting urination", "Bladder Discomfort",
-    "Foul Smell Of urine", "Continuous Feel Of Urine",
-    "Abnormal Menstruation", "Extra Marital Contacts"
-  ],
-  "Infectious and Immune Issues": [
-    "Red Spots Over Body", "History Of Alcohol Consumption",
-    "Receiving Blood Transfusion", "Receiving Unsterile Injections",
-    "Toxic Look (typhos)"
-  ]
-}
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar"
+import { LogOut, User } from "lucide-react"
 
 interface Doctor {
   name: string;
@@ -100,15 +25,6 @@ interface Doctor {
   link: string;
 }
 
-export default function PatientDashboard() {
-  const [profileCreated, setProfileCreated] = useState(false)
-  const [currentStep, setCurrentStep] = useState(1)
-  const [diagnosis, setDiagnosis] = useState('')
-  const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([])
-  const [nearestDoctors, setNearestDoctors] = useState<Doctor[]>([])
-  const [userLocation, setUserLocation] = useState<{ latitude: number | null, longitude: number | null }>({ latitude: null, longitude: null })
-  const [showDoctors, setShowDoctors] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
 interface MedicalRecords {
   bloodType: string;
   allergies: string;
@@ -120,35 +36,102 @@ interface MedicalRecords {
 interface FormData {
   medicalRecords: MedicalRecords;
 }
+interface Vitals{
+  bloodPressure: string;
+  bodyTemperature: string;
+  heartRate: string;
+}
 
-const [formData, setFormData] = useState<FormData>({
-  medicalRecords: {
-    bloodType: '',
-    allergies: '',
-    currentMedications: '',
-    previousTreatments: '',
-    previousDiagnosis: null
-  }
-})
+interface PatientProfile {
+  name: string;
+  email: string;
+  phoneNumber: string;
+  dateOfBirth: string;
+  gender: string;
+  address: string;
+}
 
-const handleProfileSubmit = async (e: React.FormEvent) => {
+const symptomsDict = {
+  "Skin and Dermatological Issues": [
+    "Itching", "Skin Rash", "Nodal Skin Eruptions", "Pus Filled Pimples",
+    "Blackheads", "Scarring", "Skin Peeling", "Silver Like Dusting",
+    "Small Dents In Nails", "Inflammatory Nails", "Blister",
+    "Red Sore Around Nose", "Yellow Crust Ooze", "Dischromic Patches"
+  ],
+  "Respiratory Issues": [
+    "Continuous Sneezing", "Cough", "Breathlessness", "Phlegm",
+    "Throat Irritation", "Redness Of Eyes", "Sinus Pressure",
+    "Runny Nose", "Congestion", "Mucoid Sputum", "Rusty Sputum",
+    "Blood In Sputum"
+  ],
+  // ... (other symptom categories remain unchanged)
+}
 
-  e.preventDefault();
-  setProfileCreated(true);
-  try {
-    const response = await fetch('api/patient/profile', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify(formData),
+export default function PatientDashboard() {
+  const [token, setToken] = useState<string | null>(null);
+  const [profileCreated, setProfileCreated] = useState(false)
+  const [currentStep, setCurrentStep] = useState(1)
+  const [diagnosis, setDiagnosis] = useState('')
+  const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([])
+  const [nearestDoctors, setNearestDoctors] = useState<Doctor[]>([])
+  const [userLocation, setUserLocation] = useState<{ latitude: number | null, longitude: number | null }>({ latitude: null, longitude: null })
+  const [showDoctors, setShowDoctors] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [formData, setFormData] = useState<FormData>({
+    medicalRecords: {
+      bloodType: '',
+      allergies: '',
+      currentMedications: '',
+      previousTreatments: '',
+      previousDiagnosis: null
+    }
+  })
+  const [patientProfile, setPatientProfile] = useState<PatientProfile>({
+    name: '',
+    email: '',
+    phoneNumber: '',
+    dateOfBirth: '',
+    gender: '',
+    address: ''
+  })
+  const [vitals,setVitals] = useState<Vitals>({
+    bloodPressure: '',
+    bodyTemperature: '',
+    heartRate: ''
   });
-}catch (error) {
-  console.error('Error:', error);
-  setProfileCreated(false);
-}
-}
+  const [profilePhoto, setProfilePhoto] = useState<string>('/placeholder.svg?height=40&width=40')
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      setToken(storedToken);
+    } else {
+      console.error('No token found. Please log in again.');
+    }
+    // In a real application, you would fetch the patient's profile data here
+    // and update the patientProfile state
+  }, []);
+
+  const handleProfileSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfileCreated(true);
+    try {
+      const response = await fetch('api/patient/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(formData),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to create profile');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setProfileCreated(false);
+    }
+  }
 
   const handleSymptomSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -240,63 +223,42 @@ const handleProfileSubmit = async (e: React.FormEvent) => {
     return R * c // Distance in km
   }
 
-  
-  const renderProfileCreation = () => (
-    <Card>
-      <CardHeader>
-        <CardTitle>Create Your Profile</CardTitle>
-        <CardDescription>Please enter your medical history and current health information.</CardDescription>
-      </CardHeader>
-      <CardContent>
-      <form onSubmit={handleProfileSubmit}>
-          {currentStep === 1 && (
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="bloodType">Blood Type</Label>
-                <Select onValueChange={(value) => setFormData(prev => ({ ...prev, medicalRecords: { ...prev.medicalRecords, bloodType: value } }))}>
-                  <SelectTrigger id="bloodType">
-                    <SelectValue placeholder="Select blood type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="A+">A+</SelectItem>
-                    <SelectItem value="A-">A-</SelectItem>
-                    <SelectItem value="B+">B+</SelectItem>
-                    <SelectItem value="B-">B-</SelectItem>
-                    <SelectItem value="O+">O+</SelectItem>
-                    <SelectItem value="O-">O-</SelectItem>
-                    <SelectItem value="AB+">AB+</SelectItem>
-                    <SelectItem value="AB-">AB-</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button type="button" onClick={() => setCurrentStep(2)}>Next</Button>
-            </div>
-          )}
-          {currentStep === 2 && (
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="allergies">Allergies</Label>
-                <Input id="allergies" placeholder="Enter any allergies..." onChange={(e) => setFormData(prev => ({ ...prev, medicalRecords: { ...prev.medicalRecords, allergies: e.target.value } }))} />
-              </div>
-              <div>
-                <Label htmlFor="currentMedications">Current Medications</Label>
-                <Textarea id="currentMedications" placeholder="Enter current medications..." onChange={(e) => setFormData(prev => ({ ...prev, medicalRecords: { ...prev.medicalRecords, currentMedications: e.target.value } }))} />
-              </div>
-              <div>
-                <Label htmlFor="previousTreatments">Previous Treatments</Label>
-                <Textarea id="previousTreatments" placeholder="Enter previous treatments..." onChange={(e) => setFormData(prev => ({ ...prev, medicalRecords: { ...prev.medicalRecords, previousTreatments: e.target.value } }))} />
-              </div>
-              <div>
-                <Label htmlFor="previousDiagnosis">Upload Previous Diagnosis</Label>
-                <Input id="previousDiagnosis" type="file" onChange={(e) => setFormData(prev => ({ ...prev, medicalRecords: { ...prev.medicalRecords, previousDiagnosis: e.target.files?.[0] || null } }))} />
-              </div>
-              <Button type="submit">Create Profile</Button>
-            </div>
-          )}
-        </form>
-      </CardContent>
-    </Card>
-  );
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+    // Redirect to login page or perform any other logout actions
+  }
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      setToken(storedToken);
+      // Fetch patient profile to determine if the profile is already created
+      fetchPatientProfile(storedToken);
+    } else {
+      console.error('No token found. Please log in again.');
+    }
+  }, []);
+
+  const fetchPatientProfile = async (token: string) => {
+    try {
+      const response = await fetch('/api/patient/getprofile', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        
+        setProfileCreated(true);
+      } else {
+        setProfileCreated(false);
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      setProfileCreated(false);
+    }
+  };
 
   const renderSymptomChecker = () => (
     <Card>
@@ -339,30 +301,54 @@ const handleProfileSubmit = async (e: React.FormEvent) => {
     </Card>
   )
 
+  const handleVitalsSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('api/patient/vitals', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(vitals),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to save vitals');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const handleVitalsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setVitals(prev => ({ ...prev, [name]: value }));
+  };
+
   const renderVitals = () => (
     <Card>
       <CardHeader>
         <CardTitle>Enter Your Vitals</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <form onSubmit={handleVitalsSubmit} className="space-y-4">
           <div>
             <Label htmlFor="bloodPressure">Blood Pressure</Label>
-            <Input id="bloodPressure" placeholder="e.g., 120/80" />
+            <Input id="bloodPressure" placeholder="e.g., 120/80" name='bloodPressure' onChange={handleVitalsChange} />
           </div>
           <div>
-            <Label htmlFor="temperature">Body Temperature (°F)</Label>
-            <Input id="temperature" placeholder="e.g., 98.6" />
+            <Label htmlFor="bodyTemperature">Body Temperature (°F)</Label>
+            <Input id="bodyTemperature" placeholder="e.g., 98.6" name='bodyTemperature' onChange={handleVitalsChange} />
           </div>
           <div>
             <Label htmlFor="heartRate">Heart Rate (bpm)</Label>
-            <Input id="heartRate" placeholder="e.g., 72" />
+            <Input id="heartRate" placeholder="e.g., 72" name='heartRate' onChange={handleVitalsChange} />
           </div>
-          <Button>Save Vitals</Button>
-        </div>
+          <Button type="submit">Save Vitals</Button>
+        </form>
       </CardContent>
     </Card>
-  )
+  );
 
   const renderTestsAndScans = () => (
     <Card>
@@ -449,6 +435,108 @@ const handleProfileSubmit = async (e: React.FormEvent) => {
     </Card>
   )
 
+  const renderMyProfile = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle>My Profile</CardTitle>
+        <CardDescription>View and update your personal information</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form className="space-y-4">
+          <div>
+            <Label htmlFor="name">Name</Label>
+            <Input id="name" value={patientProfile.name} onChange={(e) => setPatientProfile(prev => ({ ...prev, name: e.target.value }))} />
+          </div>
+          <div>
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" type="email" value={patientProfile.email} onChange={(e) => setPatientProfile(prev => ({ ...prev, email: e.target.value }))} />
+          </div>
+          <div>
+            <Label htmlFor="phoneNumber">Phone Number</Label>
+            <Input id="phoneNumber" value={patientProfile.phoneNumber} onChange={(e) => setPatientProfile(prev => ({ ...prev, phoneNumber: e.target.value }))} />
+          </div>
+          <div>
+            <Label htmlFor="dateOfBirth">Date of Birth</Label>
+            <Input id="dateOfBirth" type="date" value={patientProfile.dateOfBirth} onChange={(e) => setPatientProfile(prev => ({ ...prev, dateOfBirth: e.target.value }))} />
+          </div>
+          <div>
+            <Label htmlFor="gender">Gender</Label>
+            <Select value={patientProfile.gender} onValueChange={(value) => setPatientProfile(prev => ({ ...prev, gender: value }))}>
+              <SelectTrigger id="gender">
+                <SelectValue placeholder="Select gender" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Male">Male</SelectItem>
+                <SelectItem value="Female">Female</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="address">Address</Label>
+            <Textarea id="address" value={patientProfile.address} onChange={(e) => setPatientProfile(prev => ({ ...prev, address: e.target.value }))} />
+          </div>
+          <Button type="submit">Update Profile</Button>
+        </form>
+      </CardContent>
+    </Card>
+  )
+  const renderProfileCreation = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle>Create Your Profile</CardTitle>
+        <CardDescription>Please enter your medical history and current health information.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleProfileSubmit}>
+          {currentStep === 1 && (
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="bloodType">Blood Type</Label>
+                <Select onValueChange={(value) => setFormData(prev => ({ ...prev, medicalRecords: { ...prev.medicalRecords, bloodType: value } }))}>
+                  <SelectTrigger id="bloodType">
+                    <SelectValue placeholder="Select blood type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="A+">A+</SelectItem>
+                    <SelectItem value="A-">A-</SelectItem>
+                    <SelectItem value="B+">B+</SelectItem>
+                    <SelectItem value="B-">B-</SelectItem>
+                    <SelectItem value="O+">O+</SelectItem>
+                    <SelectItem value="O-">O-</SelectItem>
+                    <SelectItem value="AB+">AB+</SelectItem>
+                    <SelectItem value="AB-">AB-</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button type="button" onClick={() => setCurrentStep(2)}>Next</Button>
+            </div>
+          )}
+          {currentStep === 2 && (
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="allergies">Allergies</Label>
+                <Input id="allergies" placeholder="Enter any allergies..." onChange={(e) => setFormData(prev => ({ ...prev, medicalRecords: { ...prev.medicalRecords, allergies: e.target.value } }))} />
+              </div>
+              <div>
+                <Label htmlFor="currentMedications">Current Medications</Label>
+                <Textarea id="currentMedications" placeholder="Enter current medications..." onChange={(e) => setFormData(prev => ({ ...prev, medicalRecords: { ...prev.medicalRecords, currentMedications: e.target.value } }))} />
+              </div>
+              <div>
+                <Label htmlFor="previousTreatments">Previous Treatments</Label>
+                <Textarea id="previousTreatments" placeholder="Enter previous treatments..." onChange={(e) => setFormData(prev => ({ ...prev, medicalRecords: { ...prev.medicalRecords, previousTreatments: e.target.value } }))} />
+              </div>
+              <div>
+                <Label htmlFor="previousDiagnosis">Upload Previous Diagnosis</Label>
+                <Input id="previousDiagnosis" type="file" onChange={(e) => setFormData(prev => ({ ...prev, medicalRecords: { ...prev.medicalRecords, previousDiagnosis: e.target.files?.[0] || null } }))} />
+              </div>
+              <Button type="submit">Create Profile</Button>
+            </div>
+          )}
+        </form>
+      </CardContent>
+    </Card>
+  );
   const renderDashboard = () => (
     <Tabs defaultValue="symptoms">
       <TabsList>
@@ -457,18 +545,37 @@ const handleProfileSubmit = async (e: React.FormEvent) => {
         <TabsTrigger value="tests">Tests & Scans</TabsTrigger>
         <TabsTrigger value="medicines">Medicines</TabsTrigger>
         <TabsTrigger value="doctors">Nearest Doctors</TabsTrigger>
+        <TabsTrigger value="profile">My Profile</TabsTrigger>
       </TabsList>
       <TabsContent value="symptoms">{renderSymptomChecker()}</TabsContent>
       <TabsContent value="vitals">{renderVitals()}</TabsContent>
       <TabsContent value="tests">{renderTestsAndScans()}</TabsContent>
       <TabsContent value="medicines">{renderMedicines()}</TabsContent>
       <TabsContent value="doctors">{renderNearestDoctors()}</TabsContent>
+      <TabsContent value="profile">{renderMyProfile()}</TabsContent>
     </Tabs>
   )
 
+
+
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">DigiSwasth Patient Dashboard</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">DigiSwasth Patient Dashboard</h1>
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            <Avatar>
+              <AvatarImage src={profilePhoto} alt={patientProfile.name} />
+              <AvatarFallback><User /></AvatarFallback>
+            </Avatar>
+            <span>{patientProfile.name}</span>
+          </div>
+          <Button variant="outline" onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            Logout
+          </Button>
+        </div>
+      </div>
       {!profileCreated ? renderProfileCreation() : renderDashboard()}
     </div>
   )

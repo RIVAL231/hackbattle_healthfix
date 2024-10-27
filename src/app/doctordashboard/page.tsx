@@ -34,16 +34,11 @@ export default function DoctorDashboard() {
 
   useEffect(() => {
     // Simulating fetching data from an API
-    setAppointments([
-      { id: 1, patient: 'John Doe', date: '2023-10-15', time: '10:00 AM', reason: 'Annual Checkup' },
-      { id: 2, patient: 'Jane Smith', date: '2023-10-15', time: '11:00 AM', reason: 'Follow-up' },
-      { id: 3, patient: 'Bob Johnson', date: '2023-10-15', time: '2:00 PM', reason: 'New Patient' },
-    ]);
-    setPatients([
-      { id: 1, name: 'John Doe', age: 35, lastVisit: '2023-09-15' },
-      { id: 2, name: 'Jane Smith', age: 28, lastVisit: '2023-09-20' },
-      { id: 3, name: 'Bob Johnson', age: 42, lastVisit: '2023-09-18' },
-    ]);
+    const fetchAppointments = async () => {
+      const response = await fetch('/api/doctor/getpatients');
+      const data = await response.json();
+      setPatients(data);
+    };
   }, []);
 
   const renderContent = () => {
@@ -77,7 +72,7 @@ export default function DoctorDashboard() {
               <AvatarFallback>DS</AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-sm font-medium">Dr. Sarah Johnson</p>
+              <p className="text-sm font-medium">{}</p>
               <p className="text-xs text-muted-foreground">Cardiologist</p>
             </div>
           </div>
